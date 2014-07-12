@@ -2,14 +2,11 @@
 # anotify.sh
 # @author Cedric Haase
 
-LOGFILE='anotify.log'
-SUBSCRIPTION_LIST='subs.anotify'
-SENT_LINKS='sent.anotify'
-SENT_RAW_LINKS='sentraw.anotify'
+LOGFILE='/var/log/anotify.log'
+SUBSCRIPTION_LIST='/etc/anotify.conf'
+SENT_LINKS='/var/cache/anotify/sent'
+SENT_RAW_LINKS='/var/cache/anotify/sentraw'
 MAILADDR='user@domain.com'
-
-CLEAN_INTERVAL='3d'
-CHECK_INTERVAL='1h'
 
 
 # send a notification on a recently uploaded series
@@ -114,31 +111,4 @@ function clean () {
   fi
 }
 
-function clean_loop () {
-  while true; do
-    clean
-    sleep $CLEAN_INTERVAL
-  done
-}
-
-function check_loop () {
-  while true; do
-    check_subs
-    sleep $CHECK_INTERVAL
-  done
-}
-
-
-function start_in_background () {
-
-  # clear link cache on regular intervals
-  ( clean_loop )&
-
-  sleep 1
-
-  # check for new subs on regular intervals
-  ( check_loop )&
-}
-
-
-start_in_background
+check_subs
