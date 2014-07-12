@@ -40,7 +40,6 @@ function send_notification () {
     echo `date`': found RAW link for '$serie', sending notification' >> $LOGFILE
 
     # write mail text into temporary file
-    tmp_file=$RANDOM'.tmp'
     echo 'To: '$MAILADDR'
 From:anotify@pi.home
 Subject: anotify: '$episode_header' RAW
@@ -48,12 +47,7 @@ Subject: anotify: '$episode_header' RAW
 You will be notified again when a subbed version is available!
 
 Click here to watch it:
-'$link'' > $tmp_file
-
-
-    # send mail
-    msmtp -t < $tmp_file
-    rm $tmp_file
+'$link'' | msmtp -t
 
     # remember RAW link has been sent before
     echo $link >> "$SENT_RAW_LINKS"
@@ -76,19 +70,13 @@ Click here to watch it:
 
 
     # write mail text into temporary file
-    tmp_file=$RANDOM'.tmp'
     echo 'To: '$MAILADDR'
 From:anotify@pi.home
 Subject: anotify: '$episode_header' English Sub
 '$episode_header' has been uploaded!
 
 Click here to watch it:
-'$link'' > $tmp_file
-
-
-    # send mail
-    msmtp -t < $tmp_file
-    rm $tmp_file
+'$link'' | msmtp -t
 
     # remember link has been sent before
     echo $link >> "$SENT_LINKS"
