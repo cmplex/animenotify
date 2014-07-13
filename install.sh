@@ -28,6 +28,33 @@ install_backup () {
   return $?
 }
 
+configure_msmtp () {
+  acctype=${1}; mailaddr=${2}
+
+  read -p "Please enter your gmail account password: " mailpass
+  echo "account default
+host smtp.gmail.com
+port 587
+from ${mailaddr}
+tls on
+tls_starttls on
+tls_trust_file /etc/ssl/certs/ca-certificates.crt
+auth on
+user ${mailaddr}
+password ${mailpass}
+logfile ~/.msmtp" > ~/.msmtprc
+
+  test ${acctype} == "gmail" && echo "An msmtp configuration was written to /root/.msmtprc. Please check if everything looks fine."
+
+  test ${acctype} != "gmail" && echo "An example configuration was written to /root/.msmtprc. Please modify it to work with your mail account."
+}
+
+configure_msmtp_generic () {
+  mailaddr=${1}
+
+  read -p "Please enter your mail account password: " mailpass
+}
+
 # make sure we are root
 test ${UID} -eq 0 || { echo "Must be run as root."; exit 1; }
 
@@ -42,6 +69,14 @@ mkdir -p "${CONFIG_DIR}"
 for file in ${LOGFILE} ${SUBSCRIPTION_LIST} ${SENT_LINKS} ${SENT_RAW_LINKS}; do
   touch ${file}
 done
+
+echo "Commencing msmtp configuration. Please note that your password will be stored in plain text."
+read -p "Please enter your mail address: " mailaddr
+if echo ${mailaddr} | grep -Pi '(gmail)|(googlemail)'; then
+  configure_msmtp_gmail "gmail" ${mailaddr}
+else
+  configure_msmtp_generic "generic" ${mailaddr}
+fi
 
 # copy script
 cp anotify.sh /usr/bin/anotify
